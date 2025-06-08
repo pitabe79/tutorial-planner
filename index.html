@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Detallado Microsoft Planner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .progress-bar {
+            background: white;
+            padding: 10px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .progress {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 8px;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .step {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .step.active { display: block; }
+        
+        .step h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8em;
+        }
+        
+        .step-number {
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .action-box {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .action-box::before {
+            content: "💡";
+            position: absolute;
+            top: 15px;
+            left: -15px;
+            background: #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-box h3 { 
+            color: #2c3e50; 
+            margin-bottom: 15px; 
+            font-size: 1.2em;
+        }
+        
+        .role-specific {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-left: 5px solid #e17055;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .role-specific::before {
+            content: "👤";
+            position: absolute;
+            top: 15px;
+            left: -15px;
+            background: #e17055;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-config {
+            background: linear-gradient(135deg, #dcedc8, #a5d6a7);
+            border-left: 5px solid #00b894;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .task-config::before {
+            content: "⚙️";
+            position: absolute;
+            top: 15px;
+            left: -15px;
+            background: #00b894;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checklist {
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .checklist h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .checklist-item:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .checklist-item input { 
+            margin-right: 10px; 
+            transform: scale(1.2); 
+        }
+        
+        .example-text {
+            background: #e8f6f3;
+            border: 1px solid #2ecc71;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-line;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 1px solid #f39c12;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .warning-box::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        
+        .role-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .role-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .role-btn {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .role-btn:hover { transform: scale(1.05); }
+        .role-btn.selected { background: linear-gradient(135deg, #00b894, #00cec9); }
+        
+        .task-example {
+            background: #fff;
+            border: 2px solid #3498db;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .task-example h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .field {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .field strong {
+            color: #2c3e50;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .btn:disabled { 
+            background: #bdc3c7; 
+            cursor: not-allowed; 
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-secondary { background: linear-gradient(45deg, #95a5a6, #7f8c8d); }
+        
+        .completion-summary {
+            background: linear-gradient(135deg, #dcedc8, #a5d6a7);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2em; }
+            .step { padding: 20px; }
+            .role-buttons { grid-template-columns: 1fr; }
+            .navigation { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Tutorial Detallado Microsoft Planner</h1>
+            <p>Organización de Feria Empresarial Estudiantil - Paso a Paso</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+            <div class="progress-text" id="progressText">Paso 1 de 8</div>
+        </div>
+
+        <!-- Paso 1: Introducción -->
+        <div class="step active" id="step1">
+            <h2><span class="step-number">1</span>Introducción y Roles</h2>
+            
+            <div class="action-box">
+                <h3>🎯 Proyecto: Feria de Emprendimiento Juvenil</h3>
+                <p>Organizarás un evento completo aplicando las 4 funciones administrativas usando Microsoft Planner como herramienta de gestión profesional.</p>
+                
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li><strong>Duración:</strong> 6 semanas de planificación + 1 día de evento</li>
+                    <li><strong>Equipo:</strong> 6 estudiantes con roles específicos</li>
+                    <li><strong>Objetivo:</strong> 30 stands de emprendimientos, 150 visitantes</li>
+                    <li><strong>Presupuesto:</strong> $2,000 USD para todo el evento</li>
+                    <li><strong>Funciones Administrativas:</strong> Planificación, Organización, Dirección, Control</li>
+                </ul>
+            </div>
+
+            <div class="role-selector">
+                <h3>👥 Selecciona tu Rol en el Equipo:</h3>
+                <div class="role-buttons">
+                    <button class="role-btn" onclick="selectRole('coordinador')">🎯 Coordinador General</button>
+                    <button class="role-btn" onclick="selectRole('logistica')">📦 Responsable Logística</button>
+                    <button class="role-btn" onclick="selectRole('marketing')">📢 Responsable Marketing</button>
+                    <button class="role-btn" onclick="selectRole('finanzas')">💰 Responsable Finanzas</button>
+                    <button class="role-btn" onclick="selectRole('contenido')">📚 Responsable Contenido</button>
+                    <button class="role-btn" onclick="selectRole('calidad')">⭐ Responsable Calidad</button>
+                </div>
+                <p id="roleDescription" style="margin-top: 15px; font-style: italic; color: #666; font-size: 1.1em;"></p>
+            </div>
+
+            <div class="action-box">
+                <h3>📋 Responsabilidades Generales por Rol</h3>
+                <p><strong>🎯 Coordinador General:</strong> Crea el plan, supervisa progreso, facilita comunicación, toma decisiones finales</p>
+                <p><strong>📦 Logística:</strong> Espacios, permisos, distribución física, servicios básicos, montaje</p>
+                <p><strong>📢 Marketing:</strong> Promoción, redes sociales, atracción de participantes, identidad visual</p>
+                <p><strong>💰 Finanzas:</strong> Presupuesto, control de gastos, patrocinios, ingresos</p>
+                <p><strong>📚 Contenido:</strong> Programa académico, ponentes, actividades educativas</p>
+                <p><strong>⭐ Calidad:</strong> Estándares, evaluación, satisfacción, mejora continua</p>
+            </div>
+        </div>
+
+        <!-- Paso 2: Acceso -->
+        <div class="step" id="step2">
+            <h2><span class="step-number">2</span>Acceso a Microsoft Planner</h2>
+            
+            <div class="action-box">
+                <h3>🔗 Pasos Detallados para Acceder</h3>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Abrir navegador:</strong> Chrome, Firefox, Safari o Edge</li>
+                    <li><strong>Ir a:</strong> <strong>office.com</strong> (escribir exactamente esta URL)</li>
+                    <li><strong>Iniciar sesión:</strong> Con tu cuenta estudiantil (@estudiante.universidad.edu)</li>
+                    <li><strong>Buscar aplicaciones:</strong> Hacer clic en el ícono de 9 puntos (waffle menu)</li>
+                    <li><strong>Seleccionar Planner:</strong> Buscar "Planner" en la lista de aplicaciones</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                Si no aparece Planner en el menú principal, haz clic en "Todas las aplicaciones" y búscalo en la lista alfabética. Si aún no aparece, contacta al administrador de TI de tu universidad.
+            </div>
+
+            <div class="action-box">
+                <h3>🔧 Troubleshooting Común</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>No puedo acceder:</strong> Verifica que tu cuenta estudiantil tenga licencia de Office 365</li>
+                    <li><strong>Planner no aparece:</strong> Tu institución puede tener Planner deshabilitado</li>
+                    <li><strong>Pantalla en blanco:</strong> Desactiva bloqueadores de anuncios</li>
+                    <li><strong>Carga lento:</strong> Usa navegador actualizado y conexión estable</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Verificaciones Antes de Continuar:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2-1">
+                    <label for="check2-1">Tengo acceso a office.com con mi cuenta estudiantil</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2-2">
+                    <label for="check2-2">Puedo ver la aplicación Planner en el menú de aplicaciones</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2-3">
+                    <label for="check2-3">Planner se abre correctamente y veo la interfaz principal</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2-4">
+                    <label for="check2-4">Entiendo la navegación básica de Planner</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 3: Crear Plan -->
+        <div class="step" id="step3">
+            <h2><span class="step-number">3</span>Crear Plan y Agregar Equipo</h2>
+            
+            <div class="role-specific">
+                <h3>📝 SOLO PARA COORDINADOR GENERAL</h3>
+                <p><strong>Pasos detallados para crear el plan:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Hacer clic en "Nuevo plan"</strong> (botón azul en la pantalla principal)</li>
+                    <li><strong>Completar información:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Nombre del plan:</strong> "Feria Emprendimiento Juvenil 2024"</li>
+                            <li><strong>Descripción:</strong> "Organización completa de feria empresarial estudiantil con 30 stands, 150 visitantes esperados, presupuesto $2,000, duración 6 semanas de planificación"</li>
+                            <li><strong>Privacidad:</strong> Seleccionar "Privado" (solo miembros invitados pueden ver)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Hacer clic en "Crear plan"</strong></li>
+                    <li><strong>Inmediatamente agregar miembros:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Clic en ícono de "personas" (esquina superior derecha)</li>
+                            <li>Clic en "Agregar miembros"</li>
+                            <li>Escribir emails de los 5 compañeros de equipo</li>
+                            <li>Presionar Enter después de cada email</li>
+                            <li>Clic en "Agregar"</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="role-specific">
+                <h3>✉️ PARA OTROS MIEMBROS DEL EQUIPO</h3>
+                <p><strong>Si NO eres el Coordinador General, sigue estos pasos:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Esperar invitación:</strong> Revisar email para invitación de Planner</li>
+                    <li><strong>Aceptar invitación:</strong> Hacer clic en "Aceptar invitación" en el email</li>
+                    <li><strong>Acceder al plan:</strong> Te llevará directamente al plan de la feria</li>
+                    <li><strong>Explorar estructura:</strong> Familiarizarte con buckets y tareas existentes</li>
+                    <li><strong>Identificar tu área:</strong> Buscar tareas relacionadas con tu rol específico</li>
+                </ol>
+            </div>
+
+            <div class="task-config">
+                <h3>👥 Configurar Estructura Organizacional</h3>
+                <p><strong>El Coordinador debe actualizar la descripción del plan con esta información:</strong></p>
+                
+                <div class="example-text">ESTRUCTURA ORGANIZACIONAL DEL PROYECTO:
+🎯 Coordinador General: [Nombre completo + email]
+📦 Responsable Logística: [Nombre completo + email]  
+📢 Responsable Marketing: [Nombre completo + email]
+💰 Responsable Finanzas: [Nombre completo + email]
+📚 Responsable Contenido: [Nombre completo + email]
+⭐ Responsable Calidad: [Nombre completo + email]
+
+CONTACTO DE EMERGENCIA: WhatsApp grupal [enlace]
+REUNIONES: Todos los lunes 4:00 PM sala 201</div>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Completar según tu rol:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3-1">
+                    <label for="check3-1">Plan creado correctamente (solo Coordinador) O invitación aceptada (otros)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3-2">
+                    <label for="check3-2">Puedo ver el plan "Feria Emprendimiento Juvenil 2024"</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3-3">
+                    <label for="check3-3">Todos los 6 miembros del equipo están agregados</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3-4">
+                    <label for="check3-4">Estructura organizacional documentada en descripción</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 4: Buckets -->
+        <div class="step" id="step4">
+            <h2><span class="step-number">4</span>Crear Estructura de Trabajo (Buckets)</h2>
+            
+            <div class="role-specific">
+                <h3>🗂️ COORDINADOR: Crear los 8 Buckets Principales</h3>
+                <p><strong>Crear exactamente estos buckets en este orden:</strong></p>
+                
+                <ol style="margin-left: 20px;">
+                    <li><strong>"1. PLANIFICACIÓN INICIAL"</strong> - Objetivos, cronograma, recursos</li>
+                    <li><strong>"2. LOGÍSTICA Y OPERACIONES"</strong> - Espacios, permisos, distribución</li>
+                    <li><strong>"3. MARKETING Y COMUNICACIÓN"</strong> - Promoción, redes, materiales</li>
+                    <li><strong>"4. FINANZAS Y PATROCINIOS"</strong> - Presupuesto, gastos, ingresos</li>
+                    <li><strong>"5. CONTENIDO Y PROGRAMA"</strong> - Actividades, ponentes, agenda</li>
+                    <li><strong>"6. CONTROL DE CALIDAD"</strong> - Seguimiento, evaluación, mejoras</li>
+                    <li><strong>"7. EJECUCIÓN DEL EVENTO"</strong> - Día del evento, coordinación</li>
+                    <li><strong>"8. EVALUACIÓN FINAL"</strong> - Post-evento, lecciones aprendidas</li>
+                </ol>
+            </div>
+
+            <div class="action-box">
+                <h3>🔧 Proceso Técnico para Crear Buckets</h3>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Cambiar bucket por defecto:</strong> Hacer clic en "To do" y cambiar nombre a "1. PLANIFICACIÓN INICIAL"</li>
+                    <li><strong>Agregar nuevo bucket:</strong> Hacer clic en "Agregar nuevo bucket"</li>
+                    <li><strong>Escribir nombre exacto:</strong> Copiar y pegar el nombre exacto del bucket</li>
+                    <li><strong>Confirmar:</strong> Presionar Enter para guardar</li>
+                    <li><strong>Repetir proceso:</strong> Continuar hasta completar los 8 buckets</li>
+                    <li><strong>Verificar orden:</strong> Los buckets deben aparecer en orden numérico</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                IMPORTANTE: Mantén la numeración y el orden exacto. Esto facilitará el seguimiento del progreso y la coordinación entre áreas durante todo el proyecto.
+            </div>
+
+            <div class="action-box">
+                <h3>📋 Responsabilidades por Bucket</h3>
+                <p><strong>Cada miembro será responsable principal de un bucket específico:</strong></p>
+                
+                <ul style="margin-left: 20px;">
+                    <li><strong>Bucket 1:</strong> Coordinador General (tareas transversales)</li>
+                    <li><strong>Bucket 2:</strong> Responsable Logística</li>
+                    <li><strong>Bucket 3:</strong> Responsable Marketing</li>
+                    <li><strong>Bucket 4:</strong> Responsable Finanzas</li>
+                    <li><strong>Bucket 5:</strong> Responsable Contenido</li>
+                    <li><strong>Bucket 6:</strong> Responsable Calidad</li>
+                    <li><strong>Buckets 7 y 8:</strong> Todos colaboran</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Estructura de Buckets Completada:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-1">
+                    <label for="check4-1">Bucket "1. PLANIFICACIÓN INICIAL" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-2">
+                    <label for="check4-2">Bucket "2. LOGÍSTICA Y OPERACIONES" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-3">
+                    <label for="check4-3">Bucket "3. MARKETING Y COMUNICACIÓN" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-4">
+                    <label for="check4-4">Bucket "4. FINANZAS Y PATROCINIOS" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-5">
+                    <label for="check4-5">Bucket "5. CONTENIDO Y PROGRAMA" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-6">
+                    <label for="check4-6">Bucket "6. CONTROL DE CALIDAD" creado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4-7">
+                    <label for="check4-7">Todos los 8 buckets están en el orden correcto</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 5: Tareas por Rol -->
+        <div class="step" id="step5">
+            <h2><span class="step-number">5</span>Crear Tareas Específicas por Rol</h2>
+            
+            <div class="role-specific">
+                <h3>🎯 COORDINADOR GENERAL - Bucket 1</h3>
+                <p><strong>Crear estas tareas en "1. PLANIFICACIÓN INICIAL":</strong></p>
+                
+                <div class="task-example">
+                    <h4>📋 TAREA 1: "Definir objetivos SMART del evento"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Coordinador General (tu nombre)</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 3 días desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Roja "CRÍTICO"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Específico: Organizar feria con 30 stands de emprendimientos juveniles</li>
+                            <li>✅ Medible: Atraer mínimo 150 visitantes, generar 50 contactos comerciales</li>
+                            <li>✅ Alcanzable: Con equipo de 6 personas y presupuesto de $2,000</li>
+                            <li>✅ Relevante: Promover cultura emprendedora en la universidad</li>
+                            <li>✅ Temporal: Ejecución exacta en 6 semanas desde hoy</li>
+                        </ul>
+                    </div>
+                    <div class="field"><strong>Notas:</strong> "Documentar objetivos detallados que guiarán todas las decisiones del proyecto. Estos objetivos deben ser aprobados por todo el equipo antes de continuar."</div>
+                </div>
+
+                <div class="task-example">
+                    <h4>💰 TAREA 2: "Establecer presupuesto maestro"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Coordinador General</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 5 días desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Roja "CRÍTICO"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Definir límite total de gastos: $2,000</li>
+                            <li>✅ Asignar presupuesto por área (logística, marketing, etc.)</li>
+                            <li>✅ Establecer 10% contingencia ($200)</li>
+                            <li>✅ Crear sistema de aprobación de gastos</li>
+                            <li>✅ Obtener validación del Responsable Finanzas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>Tareas adicionales para Coordinador:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>"Crear cronograma maestro del proyecto" (1 semana)</li>
+                    <li>"Definir métricas de éxito del evento" (4 días)</li>
+                    <li>"Establecer protocolo de comunicación del equipo" (2 días)</li>
+                </ul>
+            </div>
+
+            <div class="role-specific">
+                <h3>📦 RESPONSABLE LOGÍSTICA - Bucket 2</h3>
+                
+                <div class="task-example">
+                    <h4>🏢 TAREA 1: "Reservar espacio físico del evento"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Logística</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 1 semana desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Roja "CRÍTICO"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Contactar administración universitaria</li>
+                            <li>✅ Solicitar auditorio/salon para 200+ personas</li>
+                            <li>✅ Confirmar disponibilidad fecha exacta</li>
+                            <li>✅ Verificar capacidad eléctrica para stands</li>
+                            <li>✅ Obtener autorización firmada</li>
+                            <li>✅ Adjuntar documento de confirmación</li>
+                        </ul>
+                    </div>
+                    <div class="field"><strong>Notas:</strong> "PRIORIDAD MÁXIMA: Sin espacio confirmado no hay evento. Considerar 3 opciones: Auditorio Principal, Centro de Convenciones, Gimnasio Techado."</div>
+                </div>
+
+                <div class="task-example">
+                    <h4>📐 TAREA 2: "Diseñar distribución de 30 stands"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Logística</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 10 días desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Amarilla "IMPORTANTE"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Medir dimensiones exactas del espacio</li>
+                            <li>✅ Diseñar stands de 3x3 metros cada uno</li>
+                            <li>✅ Crear pasillos de mínimo 2 metros</li>
+                            <li>✅ Ubicar área de recepción y registro</li>
+                            <li>✅ Señalar ubicación de baños y salidas</li>
+                            <li>✅ Crear plano digital (PowerPoint o similar)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>Tareas adicionales para Logística:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>"Gestionar permisos municipales" (2 semanas)</li>
+                    <li>"Coordinar servicios básicos: electricidad, agua, wifi" (10 días)</li>
+                    <li>"Organizar sistema de montaje y desmontaje" (3 semanas)</li>
+                </ul>
+            </div>
+
+            <div class="role-specific">
+                <h3>📢 RESPONSABLE MARKETING - Bucket 3</h3>
+                
+                <div class="task-example">
+                    <h4>🎨 TAREA 1: "Crear identidad visual completa del evento"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Marketing</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 1 semana desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Verde "NORMAL"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Diseñar logo oficial del evento</li>
+                            <li>✅ Definir paleta de colores (3-4 colores máximo)</li>
+                            <li>✅ Seleccionar tipografías oficiales</li>
+                            <li>✅ Crear plantillas para redes sociales</li>
+                            <li>✅ Diseñar papelería básica (volantes, credenciales)</li>
+                            <li>✅ Obtener aprobación del Coordinador General</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="task-example">
+                    <h4>📱 TAREA 2: "Lanzar campaña en redes sociales"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Marketing</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 2 semanas desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Amarilla "IMPORTANTE"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Crear página Facebook: "Feria Emprendimiento [Universidad]"</li>
+                            <li>✅ Crear cuenta Instagram con mismo nombre</li>
+                            <li>✅ Programar 20 publicaciones para 4 semanas</li>
+                            <li>✅ Crear hashtag oficial: #FeriaEmprendimiento2024</li>
+                            <li>✅ Conseguir 100 seguidores primera semana</li>
+                            <li>✅ Reportar métricas semanalmente</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>Tareas adicionales para Marketing:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>"Campaña atracción de 30 emprendedores expositores" (3 semanas)</li>
+                    <li>"Estrategia atracción de 150+ visitantes" (4 semanas)</li>
+                    <li>"Crear materiales promocionales impresos" (2 semanas)</li>
+                </ul>
+            </div>
+
+            <div class="role-specific">
+                <h3>💰 RESPONSABLE FINANZAS - Bucket 4</h3>
+                
+                <div class="task-example">
+                    <h4>📊 TAREA 1: "Elaborar presupuesto detallado por categorías"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Finanzas</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 5 días desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Roja "CRÍTICO"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Logística: $800 (espacio, montaje, servicios)</li>
+                            <li>✅ Marketing: $400 (materiales, promoción)</li>
+                            <li>✅ Contenido: $500 (ponentes, actividades)</li>
+                            <li>✅ Operación: $200 (personal, coordinación)</li>
+                            <li>✅ Contingencia: $100 (emergencias)</li>
+                            <li>✅ Total verificado: $2,000</li>
+                        </ul>
+                    </div>
+                    <div class="field"><strong>Notas:</strong> "Desglose debe ser aprobado por Coordinador General. Incluir fuentes de financiamiento: inscripciones $1,200 + patrocinios $800."</div>
+                </div>
+
+                <div class="task-example">
+                    <h4>🏢 TAREA 2: "Gestionar estrategia de patrocinios"</h4>
+                    <div class="field"><strong>Asignar a:</strong> Responsable Finanzas</div>
+                    <div class="field"><strong>Fecha vencimiento:</strong> 3 semanas desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Amarilla "IMPORTANTE"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Identificar 10 empresas locales potenciales</li>
+                            <li>✅ Crear propuesta de patrocinio con beneficios</li>
+                            <li>✅ Contactar empresas vía email/teléfono</li>
+                            <li>✅ Hacer seguimiento semanal</li>
+                            <li>✅ Conseguir mínimo $600 en patrocinios</li>
+                            <li>✅ Documentar compromisos por escrito</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>Tareas adicionales para Finanzas:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>"Control semanal de gastos vs presupuesto" (recurrente)</li>
+                    <li>"Sistema de inscripción y pagos expositores" (2 semanas)</li>
+                    <li>"Reportes financieros semanales" (recurrente)</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Tareas Creadas por Rol:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5-1">
+                    <label for="check5-1">He creado todas las tareas principales de mi área de responsabilidad</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5-2">
+                    <label for="check5-2">Cada tarea tiene responsable específico asignado</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5-3">
+                    <label for="check5-3">Fechas de vencimiento son realistas y coordinadas</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5-4">
+                    <label for="check5-4">Etiquetas de prioridad aplicadas correctamente</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5-5">
+                    <label for="check5-5">Listas de verificación completas con pasos específicos</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 6: Configuración Avanzada -->
+        <div class="step" id="step6">
+            <h2><span class="step-number">6</span>Configuración Avanzada de Tareas</h2>
+            
+            <div class="task-config">
+                <h3>⚙️ Cómo Configurar una Tarea Completamente</h3>
+                <p><strong>Proceso paso a paso para configurar cualquier tarea:</strong></p>
+                
+                <ol style="margin-left: 20px;">
+                    <li><strong>Hacer clic en la tarea</strong> para abrir panel lateral derecho</li>
+                    <li><strong>Completar campos básicos:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Asignar a:</strong> Seleccionar responsable principal (solo uno)</li>
+                            <li><strong>Fecha de inicio:</strong> Cuándo puede comenzar la tarea</li>
+                            <li><strong>Fecha de vencimiento:</strong> Cuándo debe estar terminada</li>
+                        </ul>
+                    </li>
+                    <li><strong>Configurar prioridad con etiquetas:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>🔴 Roja "CRÍTICO":</strong> Bloquea otras tareas si no se completa</li>
+                            <li><strong>🟡 Amarilla "IMPORTANTE":</strong> Alto impacto en el proyecto</li>
+                            <li><strong>🟢 Verde "NORMAL":</strong> Tareas regulares del flujo</li>
+                            <li><strong>🔵 Azul "RECURRENTE":</strong> Reuniones y reportes</li>
+                        </ul>
+                    </li>
+                    <li><strong>Crear lista de verificación:</strong> Dividir tarea en pasos pequeños y medibles</li>
+                    <li><strong>Agregar notas detalladas:</strong> Contexto, instrucciones, consideraciones especiales</li>
+                    <li><strong>Adjuntar archivos:</strong> Documentos, plantillas, referencias necesarias</li>
+                </ol>
+            </div>
+
+            <div class="action-box">
+                <h3>📎 Tipos de Archivos Adjuntos por Área</h3>
+                
+                <p><strong>📦 Logística:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Planos y layouts del espacio</li>
+                    <li>Permisos y autorizaciones</li>
+                    <li>Cotizaciones de proveedores</li>
+                    <li>Contratos de servicios</li>
+                </ul>
+                
+                <p><strong>📢 Marketing:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Diseños gráficos (logos, volantes)</li>
+                    <li>Plantillas para redes sociales</li>
+                    <li>Cronograma de publicaciones</li>
+                    <li>Base de datos de contactos</li>
+                </ul>
+                
+                <p><strong>💰 Finanzas:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Hojas de cálculo de presupuesto</li>
+                    <li>Propuestas de patrocinio</li>
+                    <li>Recibos y comprobantes</li>
+                    <li>Reportes semanales de gastos</li>
+                </ul>
+            </div>
+
+            <div class="task-config">
+                <h3>💬 Sistema de Comunicación en Tareas</h3>
+                
+                <p><strong>Uso efectivo de comentarios:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Reportar avances:</strong> "@CoordinadorGeneral - Completé [específico]. Próximo paso: [acción]. Adjunto: [evidencia]"</li>
+                    <li><strong>Solicitar ayuda:</strong> "@ResponsableArea - Necesito [específico] para [fecha]. Razón: [contexto]"</li>
+                    <li><strong>Escalar problemas:</strong> "@CoordinadorGeneral - PROBLEMA: [descripción]. Impacto: [consecuencias]. Opciones: [alternativas]"</li>
+                    <li><strong>Confirmar entendimiento:</strong> "@AsignadorTarea - Confirmo que entiendo [tarea]. Comenzaré [fecha] y terminaré [fecha]"</li>
+                </ol>
+                
+                <div class="example-text">Ejemplo de comentario profesional:
+"@CoordinadorGeneral - Actualización Reserva Auditorio:
+✅ COMPLETADO: Contacté administración universitaria
+✅ CONFIRMADO: Auditorio Principal disponible [fecha exacta]  
+✅ ADJUNTO: Autorización firmada en PDF
+🔄 PRÓXIMO PASO: Coordinar con @ResponsableContenido sobre requerimientos técnicos
+📅 FECHA LÍMITE: Viernes para confirmar detalles finales"</div>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Configuración Avanzada Completada:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6-1">
+                    <label for="check6-1">He configurado completamente al menos 3 tareas importantes</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6-2">
+                    <label for="check6-2">Cada tarea tiene lista de verificación con pasos específicos</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6-3">
+                    <label for="check6-3">He practicado agregar comentarios con menciones (@nombre)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6-4">
+                    <label for="check6-4">He adjuntado al menos 1 archivo de ejemplo a una tarea</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6-5">
+                    <label for="check6-5">Entiendo el sistema de etiquetas de prioridad</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 7: Control y Seguimiento -->
+        <div class="step" id="step7">
+            <h2><span class="step-number">7</span>Sistema de Control y Seguimiento</h2>
+            
+            <div class="action-box">
+                <h3>📊 Dominar las 3 Vistas de Planner</h3>
+                
+                <p><strong>1. Vista de Tablero (Board) - Principal:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Propósito:</strong> Seguimiento visual tipo Kanban</li>
+                    <li><strong>Uso:</strong> Arrastra tareas entre buckets según avancen</li>
+                    <li><strong>Beneficio:</strong> Ve todo el proyecto de un vistazo</li>
+                </ul>
+                
+                <p><strong>2. Vista de Gráficos (Charts) - Control:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Progreso del plan:</strong> % de tareas completadas vs pendientes</li>
+                    <li><strong>Estado de tareas:</strong> Cuántas están atrasadas (crítico)</li>
+                    <li><strong>Tareas por miembro:</strong> Distribución de carga de trabajo</li>
+                    <li><strong>Tareas por bucket:</strong> Progreso por área funcional</li>
+                </ul>
+                
+                <p><strong>3. Vista de Programación (Schedule) - Calendario:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Timeline visual:</strong> Todas las tareas en calendario</li>
+                    <li><strong>Identificar sobrecarga:</strong> Días con muchas tareas</li>
+                    <li><strong>Reprogramar:</strong> Arrastra tareas entre fechas</li>
+                    <li><strong>Planificar semana:</strong> Ve tu carga semanal</li>
+                </ul>
+            </div>
+
+            <div class="task-config">
+                <h3>🎯 Crear Sistema de Checkpoints</h3>
+                <p><strong>En bucket "6. CONTROL DE CALIDAD", crear estas tareas de seguimiento:</strong></p>
+                
+                <div class="task-example">
+                    <h4>📋 CHECKPOINT SEMANA 2: Avance 25%</h4>
+                    <div class="field"><strong>Asignar a:</strong> Coordinador General</div>
+                    <div class="field"><strong>Fecha:</strong> Exactamente 2 semanas desde hoy</div>
+                    <div class="field"><strong>Etiqueta:</strong> Azul "RECURRENTE"</div>
+                    <div class="field"><strong>Lista verificación:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>✅ Revisar vista de Gráficos: ¿25% tareas completadas?</li>
+                            <li>✅ Verificar cumplimiento de fechas críticas</li>
+                            <li>✅ Evaluar calidad de entregas por área</li>
+                            <li>✅ Identificar riesgos y problemas emergentes</li>
+                            <li>✅ Ajustar cronograma si es necesario</li>
+                            <li>✅ Comunicar status a todo el equipo</li>
+                            <li>✅ Documentar lecciones aprendidas</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p><strong>Crear checkpoints similares para:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Semana 3:</strong> Checkpoint 50% - Punto medio crítico</li>
+                    <li><strong>Semana 4:</strong> Checkpoint 75% - Preparación final</li>
+                    <li><strong>Semana 5:</strong> Checkpoint 95% - Últimos ajustes</li>
+                </ul>
+            </div>
+
+            <div class="role-specific">
+                <h3>📅 TODOS LOS ROLES: Reuniones de Coordinación</h3>
+                
+                <div class="task-example">
+                    <h4>👥 REUNIÓN SEMANAL DE COORDINACIÓN</h4>
+                    <div class="field"><strong>Asignar a:</strong> TODOS los 6 miembros</div>
+                    <div class="field"><strong>Frecuencia:</strong> Todos los lunes 4:00 PM</div>
+                    <div class="field"><strong>Duración:</strong> 50 minutos máximo</div>
+                    <div class="field"><strong>Etiqueta:</strong> Azul "RECURRENTE"</div>
+                    <div class="field"><strong>Agenda fija:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>🕐 10 min: Reporte de avances por área</li>
+                            <li>🕐 10 min: Identificación de problemas y bloqueos</li>
+                            <li>🕐 15 min: Toma de decisiones grupales</li>
+                            <li>🕐 10 min: Asignación de nuevas tareas</li>
+                            <li>🕐 5 min: Confirmación próxima reunión</li>
+                        </ul>
+                    </div>
+                    <div class="field"><strong>Notas:</strong> "Asistencia obligatoria. Si no puedes asistir, enviar reporte por escrito 2 horas antes. Coordinador General modera y documenta decisiones."</div>
+                </div>
+            </div>
+
+            <div class="action-box">
+                <h3>🚨 Protocolo de Escalamiento de Problemas</h3>
+                
+                <p><strong>NIVEL 1 - Problema Menor (individual):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Intenta resolverlo por cuenta propia (máximo 2 horas)</li>
+                    <li>Si no puedes, documenta el problema y pasa a Nivel 2</li>
+                </ul>
+                
+                <p><strong>NIVEL 2 - Problema Moderado (área):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Informa al responsable de tu área vía comentario en tarea</li>
+                    <li>Trabajen juntos en la solución (máximo 24 horas)</li>
+                    <li>Si no se resuelve, escalar a Nivel 3</li>
+                </ul>
+                
+                <p><strong>NIVEL 3 - Problema Mayor (coordinación):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Informa INMEDIATAMENTE al Coordinador General</li>
+                    <li>Convocar reunión de emergencia si es necesario</li>
+                    <li>Implementar plan de contingencia</li>
+                    <li>Comunicar decisión a todo el equipo</li>
+                </ul>
+            </div>
+
+            <div class="checklist">
+                <h4>✅ Sistema de Control Implementado:</h4>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7-1">
+                    <label for="check7-1">He explorado las 3 vistas de Planner (Board, Charts, Schedule)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7-2">
+                    <label for="check7-2">Checkpoints de seguimiento creados para cada 2 semanas</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7-3">
+                    <label for="check7-3">Reuniones semanales programadas con agenda clara</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7-4">
+                    <label for="check7-4">Entiendo el protocolo de escalamiento de problemas</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7-5">
+                    <label for="check7-5">Sé interpretar los gráficos de progreso y distribución</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paso 8: Evaluación Final -->
+        <div class="step" id="step8">
+            <h2><span class="step-number">8</span>Evaluación Final y Reflexión</h2>
+            
+            <div class="action-box">
+                <h3>📋 Checklist Final de Verificación</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4><strong>✅ ESTRUCTURA ORGANIZACIONAL:</strong></h4>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-1">
+                            <label for="final-1">Plan creado con nombre correcto</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-2">
+                            <label for="final-2">8 buckets creados en orden correcto</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-3">
+                            <label for="final-3">Equipo completo de 6 personas agregado</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-4">
+                            <label for="final-4">Roles y responsabilidades asignados</label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4><strong>✅ GESTIÓN DE TAREAS:</strong></h4>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-5">
+                            <label for="final-5">Mínimo 25 tareas creadas en total</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-6">
+                            <label for="final-6">Cada tarea tiene responsable asignado</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-7">
+                            <label for="final-7">Fechas de vencimiento lógicas establecidas</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="final-8">
+                            <label for="final-8">Etiquetas de prioridad aplicadas correctamente</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-config">
+                <h3>🤔 Preguntas de Reflexión Administrativa</h3>
+                
+                <p><strong>Contesta estas preguntas para consolidar tu aprendizaje:</strong></p>
+                
+                <ol style="margin-left: 20px;">
+                    <li><strong>PLANIFICACIÓN:</strong> ¿Cómo aplicaste la función de planificación en este proyecto?
+                        <br><em>Considera: objetivos SMART, cronograma, recursos, presupuesto</em></li>
+                    
+                    <li><strong>ORGANIZACIÓN:</strong> ¿Cómo estructuraste el trabajo y dividiste responsabilidades?
+                        <br><em>Considera: buckets, roles, tareas específicas, coordinación</em></li>
+                    
+                    <li><strong>DIRECCIÓN:</strong> ¿Qué estrategias usaste para liderar y comunicarte con el equipo?
+                        <br><em>Considera: reuniones, comentarios, menciones, resolución de conflictos</em></li>
+                    
+                    <li><strong>CONTROL:</strong> ¿Cómo implementaste el seguimiento y evaluación del progreso?
+                        <br><em>Considera: checkpoints, vistas de gráficos, indicadores, correcciones</em></li>
+                    
+                    <li><strong>HERRAMIENTAS DIGITALES:</strong> ¿Qué ventajas ves en usar Planner vs métodos tradicionales?
+                        <br><em>Considera: colaboración, transparencia, seguimiento en tiempo real</em></li>
+                    
+                    <li><strong>DESAFÍOS:</strong> ¿Qué obstáculos identificas para implementar esto en proyectos reales?
+                        <br><em>Considera: resistencia al cambio, capacitación, disponibilidad tecnológica</em></li>
+                    
+                    <li><strong>MEJORAS:</strong> ¿Qué cambiarías o mejorarías en tu enfoque para un próximo proyecto?
+                        <br><em>Considera: comunicación, plazos, distribución de trabajo, control</em></li>
+                </ol>
+            </div>
+
+            <div class="action-box">
+                <h3>⭐ Evaluación Cuantitativa de la Experiencia</h3>
+                
+                <p><strong>Califica cada aspecto del 1 al 10:</strong></p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <p><strong>Facilidad de uso de Microsoft Planner:</strong> ___/10</p>
+                    <p><em>¿Qué tan intuitiva te pareció la interfaz y navegación?</em></p>
+                    
+                    <p><strong>Utilidad para trabajo en equipo:</strong> ___/10</p>
+                    <p><em>¿Qué tan efectivo fue para coordinar 6 personas?</em></p>
+                    
+                    <p><strong>Aplicación de conceptos administrativos:</strong> ___/10</p>
+                    <p><em>¿Qué tan bien pudiste aplicar las 4 funciones administrativas?</em></p>
+                    
+                    <p><strong>Preparación para proyectos reales:</strong> ___/10</p>
+                    <p><em>¿Qué tan preparado te sientes para gestionar proyectos profesionales?</em></p>
+                    
+                    <p><strong>Satisfacción general con el tutorial:</strong> ___/10</p>
+                    <p><em>¿Recomendarías este enfoque a otros estudiantes?</em></p>
+                </div>
+            </div>
+
+            <div class="role-specific">
+                <h3>📈 Próximos Pasos para Continuar Aprendiendo</h3>
+                
+                <p><strong>🎯 Nivel Básico (ya completado):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>✅ Creación y configuración de planes</li>
+                    <li>✅ Gestión de tareas y equipos</li>
+                    <li>✅ Comunicación y colaboración</li>
+                    <li>✅ Seguimiento y control básico</li>
+                </ul>
+                
+                <p><strong>🚀 Nivel Intermedio (siguientes pasos):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Integración con Microsoft Teams y Outlook</li>
+                    <li>Automatización con Power Automate</li>
+                    <li>Reportes avanzados con Power BI</li>
+                    <li>Gestión de múltiples proyectos simultáneos</li>
+                </ul>
+                
+                <p><strong>⭐ Nivel Avanzado (objetivos futuros):</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Metodologías ágiles con Planner</li>
+                    <li>Gestión de portafolios de proyectos</li>
+                    <li>Integración con herramientas externas</li>
+                    <li>Liderazgo de equipos distribuidos</li>
+                </ul>
+            </div>
+
+            <div class="completion-summary">
+                <h3>🎉 ¡FELICITACIONES!</h3>
+                <p><strong>Has completado exitosamente el Tutorial Detallado de Microsoft Planner</strong></p>
+                
+                <div style="text-align: left; display: inline-block; margin-top: 20px;">
+                    <h4>🎯 Ahora estás preparado para:</h4>
+                    <ul>
+                        <li>✅ Gestionar proyectos complejos con equipos multidisciplinarios</li>
+                        <li>✅ Aplicar las 4 funciones administrativas en entornos digitales</li>
+                        <li>✅ Liderar equipos de trabajo colaborativo y remoto</li>
+                        <li>✅ Usar herramientas profesionales de gestión de proyectos</li>
+                        <li>✅ Comunicarte efectivamente en proyectos digitales</li>
+                        <li>✅ Implementar sistemas de control y seguimiento</li>
+                        <li>✅ Tomar decisiones basadas en datos y métricas</li>
+                    </ul>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <h4>📚 Certificación de Completitud</h4>
+                    <p>Este tutorial equivale a <strong>8 horas académicas</strong> de capacitación en gestión de proyectos digitales y puede ser incluido en tu portafolio profesional como evidencia de competencias en:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Administración de Proyectos</li>
+                        <li>Herramientas Digitales de Gestión</li>
+                        <li>Liderazgo de Equipos</li>
+                        <li>Comunicación Empresarial</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px;">
+                <h4>🚀 ¡Continúa tu desarrollo profesional!</h4>
+                <p>Aplica estos conocimientos en proyectos reales y comparte tu experiencia con otros estudiantes.</p>
+                <p><strong>El futuro de la administración es digital, y tú ya estás preparado.</strong></p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()">⬅️ Anterior</button>
+            <button class="btn" id="nextBtn" onclick="nextStep()">Siguiente ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+        let selectedRole = '';
+
+        const roleDescriptions = {
+            coordinador: "Responsable de crear el plan en Planner, supervisar el progreso general de todas las áreas, facilitar la comunicación del equipo, tomar decisiones finales en conflictos, y asegurar que el proyecto se complete exitosamente en tiempo y forma.",
+            logistica: "Encargado de gestionar todos los aspectos físicos del evento: reservar y configurar espacios, obtener permisos necesarios, diseñar la distribución de 30 stands, coordinar servicios básicos (electricidad, agua, wifi), y supervisar montaje y desmontaje.",
+            marketing: "Responsable de toda la comunicación y promoción del evento: crear identidad visual completa, gestionar redes sociales, desarrollar estrategias para atraer 30 expositores y 150+ visitantes, y producir todos los materiales promocionales.",
+            finanzas: "Maneja todo el aspecto económico del proyecto: elaborar y controlar presupuesto de $2,000, buscar y gestionar patrocinios, administrar inscripciones y pagos, llevar control semanal de gastos, y generar reportes financieros.",
+            contenido: "Diseña y coordina todo el programa académico del evento: crear agenda detallada, contactar y coordinar ponentes expertos, organizar talleres y actividades educativas, preparar material de apoyo, y gestionar el sistema de premiación.",
+            calidad: "Supervisa que todo el evento cumpla con estándares de excelencia: establecer criterios de evaluación, implementar sistemas de feedback, coordinar encuestas de satisfacción, identificar oportunidades de mejora, y documentar lecciones aprendidas."
+        };
+
+        function selectRole(role) {
+            selectedRole = role;
+            
+            // Remove selected class from all buttons
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            event.target.classList.add('selected');
+            
+            // Update description
+            document.getElementById('roleDescription').textContent = roleDescriptions[role];
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Paso ${currentStep} de ${totalSteps}`;
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(stepElement => {
+                stepElement.classList.remove('active');
+            });
+            
+            // Show current step
+            const currentStepElement = document.getElementById('step' + step);
+            if (currentStepElement) {
+                currentStepElement.classList.add('active');
+            }
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = step === 1;
+            
+            if (step === totalSteps) {
+                document.getElementById('nextBtn').textContent = '🎉 Finalizar Tutorial';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Siguiente ➡️';
+            }
+            
+            updateProgress();
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            } else {
+                alert('🎉 ¡FELICITACIONES!\n\n' +
+                      'Has completado exitosamente el Tutorial Detallado de Microsoft Planner.\n\n' +
+                      '✅ Dominas la gestión de proyectos digitales\n' +
+                      '✅ Puedes aplicar las 4 funciones administrativas\n' +
+                      '✅ Estás preparado para liderar equipos profesionales\n\n' +
+                      '🚀 ¡Ahora aplica estos conocimientos en proyectos reales!');
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        // Initialize tutorial
+        document.addEventListener('DOMContentLoaded', function() {
+            showStep(1);
+            updateProgress();
+        });
+
+        // Save progress to localStorage if available
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                try {
+                    const checkboxStates = {};
+                    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkboxStates[checkbox.id] = checkbox.checked;
+                    });
+                    localStorage.setItem('plannerTutorialProgress', JSON.stringify(checkboxStates));
+                } catch (e) {
+                    // localStorage not available, continue without saving
+                }
+            }
+        });
+
+        // Load saved progress if available
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const savedProgress = localStorage.getItem('plannerTutorialProgress');
+                if (savedProgress) {
+                    const checkboxStates = JSON.parse(savedProgress);
+                    Object.entries(checkboxStates).forEach(([id, checked]) => {
+                        const checkbox = document.getElementById(id);
+                        if (checkbox) {
+                            checkbox.checked = checked;
+                        }
+                    });
+                }
+            } catch (e) {
+                // localStorage not available or corrupted, continue normally
+            }
+        });
+    </script>
+</body>
+</html>
